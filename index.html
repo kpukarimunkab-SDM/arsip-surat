@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard Login</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Times New Roman', serif;
+            overflow: hidden;
+        }
+
+        .main-container {
+            /* Menggunakan background.jpg sesuai instruksi */
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Top Header */
+        .header-text {
+            text-align: center;
+            color: #f1d28c; /* Gold-like color */
+            margin-bottom: 50px;
+            z-index: 2;
+        }
+
+        .header-text h1 {
+            font-size: 32pt;
+            letter-spacing: 4px;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .header-text p {
+            font-size: 18pt;
+            letter-spacing: 2px;
+            margin: 5px 0 0 0;
+            text-transform: uppercase;
+        }
+
+        /* Circular Log In Button - Inspired by the image */
+        .login-btn-circle {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #8b0000 0%, #4a0000 100%);
+            border: 10px solid #d4af37;
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.6), inset 0 0 20px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2;
+            color: white;
+        }
+
+        .login-btn-circle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 70px rgba(212, 175, 55, 0.8);
+        }
+
+        .login-btn-circle span {
+            font-size: 24pt;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .login-btn-circle .key-icon {
+            font-size: 30pt;
+            margin-top: 10px;
+            color: #d4af37;
+        }
+
+        /* Modal Base */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+        }
+
+        /* Token Authentication Popup Styling */
+        .token-modal-content {
+            background: linear-gradient(145deg, #4a0000, #2a0000);
+            margin: 15vh auto;
+            padding: 0;
+            border: 2px solid #d4af37;
+            width: 450px;
+            border-radius: 15px;
+            color: #f1d28c;
+            box-shadow: 0 0 40px rgba(0,0,0,1);
+            position: relative;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 15px; top: 10px;
+            color: #d4af37;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .input-group {
+            padding: 30px;
+        }
+
+        input[type="password"] {
+            width: 85%;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #d4af37;
+            border-radius: 5px;
+            font-size: 14pt;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .validate-btn {
+            background: #4a0000;
+            color: white;
+            border: 1px solid #d4af37;
+            padding: 12px 40px;
+            font-size: 14pt;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 90%;
+            transition: background 0.3s;
+        }
+
+        .validate-btn:hover {
+            background: #6a0000;
+        }
+
+        /* Spreadsheet Popup Styling */
+        .spreadsheet-modal-content {
+            background: white;
+            margin: 5vh auto;
+            width: 90%;
+            height: 85vh;
+            border-radius: 10px;
+            border: 3px solid #d4af37;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ss-header {
+            background: #f1d28c;
+            color: #4a0000;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .ss-body {
+            flex-grow: 1;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="header-text">
+        <h1>ADMIN DASHBOARD</h1>
+        <p>WELCOME</p>
+    </div>
+
+    <div class="login-btn-circle" onclick="showTokenModal()">
+        <span>LOG IN</span>
+        <div class="key-icon">🔑</div>
+    </div>
+</div>
+
+<!-- Modal 1: Token Input -->
+<div id="tokenModal" class="modal">
+    <div class="token-modal-content">
+        <span class="close-btn" onclick="closeModal('tokenModal')">&times;</span>
+        <div class="modal-header">
+            <h3>TOKEN AUTHENTICATION</h3>
+        </div>
+        <div class="input-group">
+            <p>Enter Admin Token (Password)</p>
+            <input type="password" id="tokenInput" placeholder="Enter Admin Token (Password)">
+            <button class="validate-btn" onclick="checkToken()">VALIDATE TOKEN</button>
+            <p id="error-msg" style="color: #ff6b6b; margin-top: 10px; font-size: 10pt; visibility: hidden;">Token Salah! Silakan coba lagi.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2: Spreadsheet Iframe -->
+<div id="ssModal" class="modal">
+    <div class="spreadsheet-modal-content">
+        <div class="ss-header">
+            <span>POPUP | SPREADSHEET VIEW</span>
+            <span style="cursor:pointer; font-size: 20px;" onclick="closeModal('ssModal')">&times;</span>
+        </div>
+        <div class="ss-body">
+            <iframe id="gasFrame" src=""></iframe>
+        </div>
+    </div>
+</div>
+
+<script>
+    const CORRECT_TOKEN = "21022026";
+    const TARGET_URL = "https://script.google.com/macros/s/AKfycbxiERS3LAFDKy6Lu5MkX5La5sKkVfrOm1fbSc3QNKSBXplNhh_H7BOp_IEEdG7xewVz/exec";
+
+    function showTokenModal() {
+        document.getElementById('tokenModal').style.display = 'block';
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+        if(id === 'tokenModal') {
+            document.getElementById('tokenInput').value = '';
+            document.getElementById('error-msg').style.visibility = 'hidden';
+        }
+    }
+
+    function checkToken() {
+        const input = document.getElementById('tokenInput').value;
+        const errorMsg = document.getElementById('error-msg');
+        
+        if(input === CORRECT_TOKEN) {
+            closeModal('tokenModal');
+            document.getElementById('ssModal').style.display = 'block';
+            document.getElementById('gasFrame').src = TARGET_URL;
+        } else {
+            errorMsg.style.visibility = 'visible';
+            document.getElementById('tokenInput').style.borderColor = '#ff6b6b';
+        }
+    }
+
+    // Menutup modal jika klik di luar box
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = 'none';
+        }
+    }
+
+    // Keydown Enter untuk submit
+    document.getElementById("tokenInput").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+            checkToken();
+        }
+    });
+</script>
+
+</body>
+</html>
