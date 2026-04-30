@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard Login</title>
+    <!-- Optimasi 1: DNS Prefetch untuk mempercepat resolusi domain Google -->
+    <link rel="dns-prefetch" href="https://script.google.com">
+    <link rel="dns-prefetch" href="https://script.googleusercontent.com">
+    
     <style>
         body, html {
             margin: 0;
@@ -33,7 +37,7 @@
         }
 
         .header-text h1 {
-            font-size: clamp(24pt, 5vw, 32pt); /* Responsif ukuran font */
+            font-size: clamp(24pt, 5vw, 32pt); 
             letter-spacing: 4px;
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
@@ -47,7 +51,7 @@
         }
 
         .login-btn-circle {
-            width: clamp(180px, 40vw, 220px); /* Responsif ukuran tombol */
+            width: clamp(180px, 40vw, 220px); 
             height: clamp(180px, 40vw, 220px);
             border-radius: 50%;
             background: radial-gradient(circle, #8b0000 0%, #4a0000 100%);
@@ -88,16 +92,15 @@
             width: 100%; height: 100%;
             background-color: rgba(0,0,0,0.7);
             backdrop-filter: blur(8px);
-            overflow-y: auto; /* Memungkinkan scroll jika layar sangat kecil */
+            overflow-y: auto; 
         }
 
-        /* Responsive Modal Content */
         .token-modal-content {
             background: linear-gradient(145deg, #4a0000, #2a0000);
             margin: 15vh auto;
             border: 2px solid #d4af37;
-            width: 90%; /* Lebar responsif */
-            max-width: 400px; /* Lebar maksimal desktop */
+            width: 90%; 
+            max-width: 400px; 
             border-radius: 15px;
             color: #f1d28c;
             box-shadow: 0 0 40px rgba(0,0,0,1);
@@ -125,7 +128,6 @@
             padding: 20px;
         }
 
-        /* Container Input untuk Password + Toggle Eye */
         .password-container {
             position: relative;
             width: 90%;
@@ -134,13 +136,13 @@
 
         input[type="password"], input[type="text"] {
             width: 100%;
-            padding: 15px 45px 15px 15px; /* Spasi kanan untuk ikon mata */
+            padding: 15px 45px 15px 15px; 
             background: #fff;
             border: 1px solid #d4af37;
             border-radius: 5px;
             font-size: 14pt;
             text-align: center;
-            box-sizing: border-box; /* Penting agar padding tidak merusak lebar */
+            box-sizing: border-box; 
             color: #333;
         }
 
@@ -182,6 +184,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: relative;
         }
 
         .ss-header {
@@ -193,13 +196,43 @@
             align-items: center;
             font-weight: bold;
             font-size: 0.9rem;
+            z-index: 5;
+        }
+
+        .ss-body {
+            flex: 1;
+            position: relative;
         }
 
         iframe {
             width: 100%;
             height: 100%;
             border: none;
+            background: white;
         }
+
+        /* Optimasi 2: Loader Visual */
+        .loader-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 4;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4a0000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -243,7 +276,13 @@
             <span style="cursor:pointer; font-size: 24px;" onclick="closeModal('ssModal')">&times;</span>
         </div>
         <div class="ss-body">
-            <iframe id="gasFrame" src=""></iframe>
+            <!-- Loader Overlay -->
+            <div id="loaderOverlay" class="loader-overlay">
+                <div class="spinner"></div>
+                <p style="color:#4a0000; margin-top:10px;">Sedang Sinkronisasi Data...</p>
+            </div>
+            <!-- Iframe dengan onload event -->
+            <iframe id="gasFrame" src="" onload="hideLoader()"></iframe>
         </div>
     </div>
 </div>
@@ -251,6 +290,13 @@
 <script>
     const CORRECT_TOKEN = "21022026";
     const TARGET_URL = "https://script.google.com/macros/s/AKfycbxiERS3LAFDKy6Lu5MkX5La5sKkVfrOm1fbSc3QNKSBXplNhh_H7BOp_IEEdG7xewVz/exec";
+
+    // Optimasi 3: Silent Preload saat halaman utama terbuka
+    window.addEventListener('load', () => {
+        const frame = document.getElementById('gasFrame');
+        // Mulai memuat URL di background agar tersimpan di cache browser
+        frame.src = TARGET_URL; 
+    });
 
     function showTokenModal() {
         document.getElementById('tokenModal').style.display = 'block';
@@ -261,7 +307,7 @@
         if(id === 'tokenModal') {
             const input = document.getElementById('tokenInput');
             input.value = '';
-            input.type = 'password'; // Reset ke password saat tutup
+            input.type = 'password'; 
             document.getElementById('error-msg').style.visibility = 'hidden';
             document.querySelector('.toggle-password').innerText = '👁️';
         }
@@ -272,10 +318,10 @@
         const icon = document.querySelector('.toggle-password');
         if (input.type === "password") {
             input.type = "text";
-            icon.innerText = "🙈"; // Ikon saat terlihat
+            icon.innerText = "🙈"; 
         } else {
             input.type = "password";
-            icon.innerText = "👁️"; // Ikon saat tersembunyi
+            icon.innerText = "👁️"; 
         }
     }
 
@@ -286,16 +332,21 @@
         if(input === CORRECT_TOKEN) {
             closeModal('tokenModal');
             document.getElementById('ssModal').style.display = 'block';
-            document.getElementById('gasFrame').src = TARGET_URL;
+            // URL sudah di-assign saat window.load, jadi tinggal tampilkan modal
         } else {
             errorMsg.style.visibility = 'visible';
             document.getElementById('tokenInput').style.borderColor = '#ff6b6b';
         }
     }
 
+    // Fungsi baru untuk menyembunyikan loader setelah iframe selesai dimuat
+    function hideLoader() {
+        const loader = document.getElementById('loaderOverlay');
+        if(loader) loader.style.display = 'none';
+    }
+
     window.onclick = function(event) {
         if (event.target.className === 'modal') {
-            // Kita gunakan logic ini agar user tidak sengaja menutup saat mengetik
             if(event.target.id !== 'ssModal') { 
                 closeModal(event.target.id);
             }
